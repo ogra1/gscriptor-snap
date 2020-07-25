@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Gscriptor
+Comment=Send commands to smart cards
+Icon=${SNAP}/meta/gui/icon.png
+Exec=gscriptor
+Terminal=false
+Categories=Utility
+Keywords=smartcard;apdu;nfc

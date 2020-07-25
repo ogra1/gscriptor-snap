@@ -1,0 +1,115 @@
+name: gscriptor
+base: core18
+adopt-info: pcsc-tools
+summary: a GUI to send commands to a smart card using a batch file or stdin.
+description: |
+  gscriptor is a program that sends commands to a smart card using a batch file.
+
+  Please make sure to have the pcsc-daemon snap installed and to connect the socket 
+  interface via
+
+      snap connect gscriptor:pcscd pcsc-daemon:socket
+
+  Also connect the mount-observe interface
+
+      snap connect gscriptor:mount-observe
+
+  To load batch files from external drives you also need to connect teh removable-media
+  interface
+
+      snap connect gscriptor:removable-media
+
+  Icon made by Freepik (https://www.flaticon.com/authors/freepik)
+
+grade: stable
+confinement: strict
+
+plugs:
+  pcscd:
+    interface: content
+    content: pcscd-socket
+    target: $SNAP_COMMON
+    default-provider: pcsc-daemon
+
+apps:
+  gscriptor:
+    command: gscriptor
+    extensions: [gnome-3-28]
+    command-chain:
+      - bin/debian-multiarch-triplet-provider-launch
+      - bin/perl-launch
+    environment:
+      LANG: C.UTF-8
+    plugs:
+      - desktop
+      - home
+      - mount-observe
+      - pcscd
+      - removable-media
+      - unity7
+      - wayland
+      - x11
+
+parts:
+  pcscd-libs:
+    source: https://salsa.debian.org/rousseau/PCSC.git
+    source-tag: pcsc-1.9.0
+    plugin: autotools
+    configflags:
+      - -enable-ipcdir=/var/snap/$SNAPCRAFT_PROJECT_NAME/common/pcscd
+    override-build: |
+      snapcraftctl build
+      # we only want the libs
+      for dir in bin sbin share usr lib/systemd; do
+        rm -rf $SNAPCRAFT_PART_INSTALL/$dir
+      done
+      # copy licenses
+      mkdir -p $SNAPCRAFT_PART_INSTALL/usr/share/doc/pcscd
+      for license in COPYING AUTHORS GPL-3.0.txt; do
+        cp $license $SNAPCRAFT_PART_INSTALL/usr/share/doc/pcscd/
+      done
+    override-prime: |
+      snapcraftctl prime
+      # do not ship includes in the final snap
+      rm -rf $SNAPCRAFT_PART_INSTALL/include
+      rm -rf $SNAPCRAFT_PART_INSTALL/lib/*.la
+      rm -rf $SNAPCRAFT_PART_INSTALL/lib/pkgconfig
+    build-packages:
+      - libsystemd-dev
+      - libudev-dev
+      - libusb-1.0-0-dev
+    stage-packages:
+      - libusb-1.0-0
+  pcsc-tools:
+    source: https://salsa.debian.org/rousseau/pcsc-tools.git
+    plugin: autotools
+    after: [ pcscd-libs ]
+    override-build: |
+      snapcraftctl build
+      mkdir -p $SNAPCRAFT_PART_INSTALL/usr/share/doc/pcsc-tools
+      cp LICENCE $SNAPCRAFT_PART_INSTALL/usr/share/doc/pcsc-tools/
+      # set version
+      VERSION="$(grep AC_INIT configure.ac | sed 's/^.*\[//;s/\].*$//')"
+      echo "setting version to $VERSION"
+      snapcraftctl set-version $VERSION
+    stage-packages:
+      - libgetopt-complete-perl
+      - libpcsc-perl
+      - libglib-perl
+      - libgtk3-perl
+    stage-snaps:
+      - debian-multiarch-triplet-provider-launch
+      - perl-launch
+  cleanup:
+    after: [ pcsc-tools ]
+    plugin: nil
+    build-snaps: [ gnome-3-28-1804 ]
+    override-prime: |
+      set -eux
+      cd /snap/gnome-3-28-1804/current
+      find . -type f,l -exec rm -f $SNAPCRAFT_PRIME/{} \;
+      for CRUFT in bug lintian man; do
+        rm -rf $SNAPCRAFT_PRIME/usr/share/$CRUFT
+      done
+      find $SNAPCRAFT_PRIME/usr/share/doc/ -type f -not -name 'copyright' -delete
+      find $SNAPCRAFT_PRIME/usr/share -type d -empty -delete
