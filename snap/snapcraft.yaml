@@ -1,4 +1,4 @@
-name: gscriptor
+name: pcsc-gscriptor
 base: core18
 adopt-info: pcsc-tools
 summary: a GUI to send commands to a smart card using a batch file or stdin.
@@ -8,16 +8,16 @@ description: |
   Please make sure to have the pcsc-daemon snap installed and to connect the socket 
   interface via
 
-      snap connect gscriptor:pcscd pcsc-daemon:socket
+      snap connect pcsc-gscriptor:pcscd pcsc-daemon:socket
 
   Also connect the mount-observe interface
 
-      snap connect gscriptor:mount-observe
+      snap connect pcsc-gscriptor:mount-observe
 
   To load batch files from external drives you also need to connect teh removable-media
   interface
 
-      snap connect gscriptor:removable-media
+      snap connect pcsc-gscriptor:removable-media
 
   Icon made by Freepik (https://www.flaticon.com/authors/freepik)
 
@@ -32,7 +32,7 @@ plugs:
     default-provider: pcsc-daemon
 
 apps:
-  gscriptor:
+  pcsc-gscriptor:
     command: gscriptor
     extensions: [gnome-3-28]
     command-chain:
