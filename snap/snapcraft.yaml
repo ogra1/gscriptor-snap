@@ -31,6 +31,12 @@ plugs:
     target: $SNAP_COMMON
     default-provider: pcsc-daemon
 
+architectures:
+  - build-on: amd64
+  - build-on: i386
+  - build-on: armhf
+  - build-on: arm64
+
 apps:
   pcsc-gscriptor:
     command: gscriptor
@@ -75,6 +81,7 @@ parts:
       rm -rf $SNAPCRAFT_PART_INSTALL/lib/*.la
       rm -rf $SNAPCRAFT_PART_INSTALL/lib/pkgconfig
     build-packages:
+      - flex
       - libsystemd-dev
       - libudev-dev
       - libusb-1.0-0-dev
