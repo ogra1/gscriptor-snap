@@ -28,7 +28,7 @@ plugs:
   pcscd:
     interface: content
     content: pcscd-socket
-    target: $SNAP_COMMON
+    target: $SNAP_COMMON/pcscd
     default-provider: pcsc-daemon
 
 architectures:
