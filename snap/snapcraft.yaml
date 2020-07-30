@@ -5,16 +5,15 @@ summary: a GUI to send commands to a smart card using a batch file or stdin.
 description: |
   gscriptor is a program that sends commands to a smart card using a batch file.
 
-  Please make sure to have the pcsc-daemon snap installed and to connect the socket 
-  interface via
+  The snap will auto-install the pcsc-daemon snap and automatically connect to
+  the socket interface of the daemon
 
-      snap connect pcsc-gscriptor:pcscd pcsc-daemon:socket
-
-  Also connect the mount-observe interface
+  You should manually connect the mount-observe interface (to quieten log spam,
+  it will not limit any functionality if you do not connect it)
 
       snap connect pcsc-gscriptor:mount-observe
 
-  To load batch files from external drives you also need to connect teh removable-media
+  To load batch files from external drives you also need to connect the removable-media
   interface
 
       snap connect pcsc-gscriptor:removable-media
