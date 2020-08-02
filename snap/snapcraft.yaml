@@ -57,35 +57,17 @@ apps:
 
 parts:
   pcscd-libs:
-    source: https://salsa.debian.org/rousseau/PCSC.git
-    source-tag: pcsc-1.9.0
-    plugin: autotools
-    configflags:
-      - -enable-ipcdir=/var/snap/$SNAPCRAFT_PROJECT_NAME/common/pcscd
-    override-build: |
-      snapcraftctl build
-      # we only want the libs
-      for dir in bin sbin share usr lib/systemd; do
-        rm -rf $SNAPCRAFT_PART_INSTALL/$dir
-      done
-      # copy licenses
-      mkdir -p $SNAPCRAFT_PART_INSTALL/usr/share/doc/pcscd
-      for license in COPYING AUTHORS GPL-3.0.txt; do
-        cp $license $SNAPCRAFT_PART_INSTALL/usr/share/doc/pcscd/
-      done
-    override-prime: |
-      snapcraftctl prime
-      # do not ship includes in the final snap
-      rm -rf $SNAPCRAFT_PART_INSTALL/include
-      rm -rf $SNAPCRAFT_PART_INSTALL/lib/*.la
-      rm -rf $SNAPCRAFT_PART_INSTALL/lib/pkgconfig
-    build-packages:
-      - flex
-      - libsystemd-dev
-      - libudev-dev
-      - libusb-1.0-0-dev
-    stage-packages:
-      - libusb-1.0-0
+    plugin: nil
+    stage-snaps:
+      - pcsc-daemon
+    stage:
+      - lib
+      - include
+    organize:
+      include/PCSC: include
+    prime:
+      - lib/libpcsclite*
+      - -include
   pcsc-tools:
     source: https://salsa.debian.org/rousseau/pcsc-tools.git
     plugin: autotools
