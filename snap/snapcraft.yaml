@@ -60,12 +60,10 @@ parts:
     plugin: nil
     stage-snaps:
       - pcsc-daemon
-    stage:
+    stage: # we only need the libs and headers
       - lib
       - include
-    organize:
-      include/PCSC: include
-    prime:
+    prime: # do not ship headers in binary snap, just libs
       - lib/libpcsclite*
       - -include
   pcsc-tools:
@@ -74,12 +72,14 @@ parts:
     after: [ pcscd-libs ]
     override-build: |
       snapcraftctl build
-      mkdir -p $SNAPCRAFT_PART_INSTALL/usr/share/doc/pcsc-tools
-      cp LICENCE $SNAPCRAFT_PART_INSTALL/usr/share/doc/pcsc-tools/
+      #mkdir -p $SNAPCRAFT_PART_INSTALL/usr/share/doc/pcsc-tools
+      #cp LICENCE $SNAPCRAFT_PART_INSTALL/usr/share/doc/pcsc-tools/
       # set version
       VERSION="$(grep AC_INIT configure.ac | sed 's/^.*\[//;s/\].*$//')"
       echo "setting version to $VERSION"
       snapcraftctl set-version $VERSION
+    organize:
+      $SNAPCRAFT_PART_SRC/LICENCE: usr/share/doc/pcsc-tools/LICENCE
     stage-packages:
       - libgetopt-complete-perl
       - libpcsc-perl
